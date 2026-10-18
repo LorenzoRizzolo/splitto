@@ -1,0 +1,23 @@
+# /etc/systemd/system/splitto.service
+[Unit]
+Description=Splitto (SvelteKit / Node)
+After=network.target
+
+[Service]
+Type=simple
+User=splitto
+WorkingDirectory=/opt/splitto
+EnvironmentFile=/opt/splitto/.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node build
+Restart=on-failure
+RestartSec=5
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/splitto/data /opt/splitto/backups /opt/splitto/logs
+
+[Install]
+WantedBy=multi-user.target

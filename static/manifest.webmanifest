@@ -1,0 +1,41 @@
+{
+	"id": "/app",
+	"name": "Splitto — Dividi le spese",
+	"short_name": "Splitto",
+	"description": "Dividi le spese con amici, coinquilini e compagni di viaggio.",
+	"lang": "it",
+	"dir": "ltr",
+	"start_url": "/app",
+	"scope": "/",
+	"display": "standalone",
+	"display_override": ["window-controls-overlay", "standalone"],
+	"orientation": "any",
+	"background_color": "#f5f7f6",
+	"theme_color": "#0f766e",
+	"categories": ["finance", "productivity", "lifestyle"],
+	"icons": [
+		{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+		{ "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+		{ "src": "/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+		{ "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+	],
+	"shortcuts": [
+		{
+			"name": "Aggiungi spesa",
+			"short_name": "Spesa",
+			"url": "/app/expenses/new",
+			"icons": [{ "src": "/icons/shortcut-add.png", "sizes": "96x96", "type": "image/png" }]
+		},
+		{
+			"name": "I miei gruppi",
+			"short_name": "Gruppi",
+			"url": "/app/groups",
+			"icons": [{ "src": "/icons/shortcut-groups.png", "sizes": "96x96", "type": "image/png" }]
+		}
+	],
+	"screenshots": [
+		{ "src": "/screenshots/mobile-dashboard.png", "sizes": "1080x2280", "type": "image/png", "form_factor": "narrow", "label": "Dashboard con il saldo totale" },
+		{ "src": "/screenshots/mobile-balances.png", "sizes": "1080x2280", "type": "image/png", "form_factor": "narrow", "label": "Chi deve a chi, in chiaro" },
+		{ "src": "/screenshots/desktop-group.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Spese del gruppo su computer" }
+	]
+}

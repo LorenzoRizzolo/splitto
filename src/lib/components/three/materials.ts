@@ -1,17 +1,21 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-/** Procedural coin face with an embossed "S" (no image files to download). */
-export function coinFaceTexture(mirrored = false): THREE.CanvasTexture {
+/**
+ * Procedural coin face with an embossed "S" (no image files to download).
+ * CylinderGeometry cap UVs are rotated 90° relative to the coin once it is stood up with
+ * rotation.x = PI/2 (canvas "up" ends up pointing right), so the drawing is pre-rotated 90° CCW
+ * to keep the "S" upright. The same mapping holds for the bottom cap seen after a half spin.
+ */
+export function coinFaceTexture(): THREE.CanvasTexture {
 	const size = 512;
 	const canvas = document.createElement('canvas');
 	canvas.width = canvas.height = size;
 	const ctx = canvas.getContext('2d')!;
-	if (mirrored) {
-		ctx.translate(size, 0);
-		ctx.scale(-1, 1);
-	}
 	const c = size / 2;
+	ctx.translate(c, c);
+	ctx.rotate(-Math.PI / 2);
+	ctx.translate(-c, -c);
 	const g = ctx.createRadialGradient(c * 0.7, c * 0.6, 20, c, c, c);
 	g.addColorStop(0, '#fff3b0');
 	g.addColorStop(0.45, '#f8c33c');
@@ -46,7 +50,7 @@ export function roomEnvironment(renderer: THREE.WebGLRenderer): THREE.Texture {
 
 export function coinMaterials() {
 	const front = coinFaceTexture();
-	const back = coinFaceTexture(true);
+	const back = coinFaceTexture();
 	const side = new THREE.MeshStandardMaterial({
 		color: '#e8a92a',
 		metalness: 1,

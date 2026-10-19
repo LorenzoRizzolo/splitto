@@ -39,11 +39,17 @@ export async function sendPush(userIds: string[], payload: PushPayload) {
 					{ TTL: 60 * 60 * 24, urgency: 'normal', topic: payload.tag?.slice(0, 32) }
 				);
 			} catch (err) {
-				const status = (err as { statusCode?: number }).statusCode;
+				const { statusCode: status, body: reason } = err as { statusCode?: number; body?: string };
 				if (status === 404 || status === 410) {
 					db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, sub.id)).run();
 				} else {
-					console.error('[push] send failed', status ?? err);
+					// The push service explains rejections in the body (e.g. Apple's {"reason":"..."}).
+					console.error(
+						'[push] send failed',
+						new URL(sub.endpoint).host,
+						status ?? err,
+						reason ?? ''
+					);
 				}
 			}
 		})

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import FieldError from '../ui/FieldError.svelte';
+	import Avatar from '../ui/Avatar.svelte';
 	import { GROUP_EMOJIS, GROUP_TYPE_INFO } from '$lib/domain/groups';
 	import { centsToInput } from '$lib/domain/money';
 	import { trackDirty } from '$lib/client/sw.svelte';
@@ -12,12 +13,19 @@
 		type: string;
 		budgetCents: number | null;
 	};
+	type Friend = {
+		userId: string;
+		name: string;
+		avatarUrl: string | null;
+		avatarColor: string | null;
+	};
 	let {
 		action = '',
 		values,
 		errors = {},
 		submitLabel,
 		withGuests = false,
+		friends = [],
 		successMessage
 	}: {
 		action?: string;
@@ -25,6 +33,7 @@
 		errors?: Record<string, string>;
 		submitLabel: string;
 		withGuests?: boolean;
+		friends?: Friend[];
 		successMessage?: string;
 	} = $props();
 
@@ -131,6 +140,26 @@
 	{#if withGuests}
 		<fieldset>
 			<legend class="field-label">Aggiungi subito delle persone (facoltativo)</legend>
+			{#if friends.length}
+				<p class="mb-2 text-sm text-ink-muted">Scegli tra i tuoi amici:</p>
+				<div class="mb-4 flex flex-wrap gap-2">
+					{#each friends as friend (friend.userId)}
+						<label
+							class="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-line py-1 pr-3 pl-1 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-brand-500 dark:has-[:checked]:bg-brand-950"
+						>
+							<input type="checkbox" name="friend" value={friend.userId} class="sr-only" />
+							<Avatar
+								name={friend.name}
+								src={friend.avatarUrl}
+								color={friend.avatarColor}
+								size={32}
+							/>
+							<span class="text-sm">{friend.name}</span>
+						</label>
+					{/each}
+				</div>
+				<p class="mb-2 text-sm text-ink-muted">Oppure aggiungi qualcuno nuovo.</p>
+			{/if}
 			<p class="mb-2 text-sm text-ink-muted">
 				Basta il nome: potranno unirsi più tardi con il link di invito e ritrovare tutte le spese.
 			</p>

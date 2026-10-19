@@ -97,7 +97,12 @@ export type GroupInput = {
 	budgetCents: number | null;
 };
 
-export function createGroup(userId: string, input: GroupInput, guestNames: string[] = []): string {
+export function createGroup(
+	userId: string,
+	input: GroupInput,
+	guestNames: string[] = [],
+	friends: { userId: string; name: string }[] = []
+): string {
 	return db.transaction((tx) => {
 		const id = newId();
 		tx.insert(groups)
@@ -120,6 +125,17 @@ export function createGroup(userId: string, input: GroupInput, guestNames: strin
 				type: 'member_added',
 				entityId: memberId,
 				data: { name, guest: true }
+			});
+		}
+		for (const friend of friends) {
+			if (friend.userId === userId) continue;
+			tx.insert(groupMembers).values({ id: newId(), groupId: id, userId: friend.userId }).run();
+			logActivity(tx, {
+				groupId: id,
+				actorUserId: userId,
+				type: 'member_added',
+				entityId: friend.userId,
+				data: { name: friend.name }
 			});
 		}
 		return id;

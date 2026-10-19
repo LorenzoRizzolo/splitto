@@ -24,5 +24,6 @@
 		errors={form?.errors ?? {}}
 		submitLabel="Crea gruppo"
 		withGuests
+		friends={data.friends}
 	/>
 </div>

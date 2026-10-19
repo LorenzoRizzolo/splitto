@@ -1,10 +1,26 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { createGroup } from '$lib/server/services/groups';
+import { createGroup, listMembers } from '$lib/server/services/groups';
+import { friendBalances, userGroupSummaries } from '$lib/server/services/balances';
 import { groupSchema, toGroupInput } from '$lib/server/group-form';
 import { invalid, parseForm } from '$lib/server/forms';
 
-export const load: PageServerLoad = ({ url }) => ({ first: url.searchParams.has('first') });
+/** Registered users the viewer shares at least one group with. */
+function registeredFriends(userId: string) {
+	return friendBalances(userId, userGroupSummaries(userId), (gid) => listMembers(gid, userId))
+		.filter((f): f is typeof f & { userId: string } => !!f.userId)
+		.sort((a, b) => a.name.localeCompare(b.name, 'it'));
+}
+
+export const load: PageServerLoad = ({ url, locals }) => ({
+	first: url.searchParams.has('first'),
+	friends: registeredFriends(locals.user!.id).map((f) => ({
+		userId: f.userId,
+		name: f.name,
+		avatarUrl: f.avatarUrl,
+		avatarColor: f.avatarColor
+	}))
+});
 
 export const actions: Actions = {
 	default: async ({ request, locals }) => {
@@ -17,7 +33,13 @@ export const actions: Actions = {
 			.map((g) => g.trim().slice(0, 60))
 			.filter(Boolean)
 			.slice(0, 50);
-		const id = createGroup(locals.user!.id, toGroupInput(form.data), guests);
+		const picked = new Set(data.getAll('friend'));
+		const friends = picked.size
+			? registeredFriends(locals.user!.id)
+					.filter((f) => picked.has(f.userId))
+					.map((f) => ({ userId: f.userId, name: f.name }))
+			: [];
+		const id = createGroup(locals.user!.id, toGroupInput(form.data), guests, friends);
 		redirect(303, `/app/groups/${id}?created=1`);
 	}
 };

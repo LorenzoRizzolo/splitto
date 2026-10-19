@@ -36,7 +36,8 @@ export async function sendPush(userIds: string[], payload: PushPayload) {
 				await webpush.sendNotification(
 					{ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
 					body,
-					{ TTL: 60 * 60 * 24, urgency: 'normal', topic: payload.tag?.slice(0, 32) }
+					// No Topic header: Apple rejects it (400 BadWebPushTopic). Grouping is done by the SW's `tag`.
+					{ TTL: 60 * 60 * 24, urgency: 'normal' }
 				);
 			} catch (err) {
 				const { statusCode: status, body: reason } = err as { statusCode?: number; body?: string };

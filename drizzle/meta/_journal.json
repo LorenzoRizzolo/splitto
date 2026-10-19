@@ -15,6 +15,13 @@
       "when": 1792357049569,
       "tag": "0001_remove_simplify_debts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792402788058,
+      "tag": "0002_oauth_accounts",
+      "breakpoints": true
     }
   ]
 }

@@ -1,13 +1,18 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import FieldError from '$lib/components/ui/FieldError.svelte';
+	import OAuthButtons from '$lib/components/auth/OAuthButtons.svelte';
+	import Seo from '$lib/components/seo/Seo.svelte';
 
 	let { data, form } = $props();
 	let submitting = $state(false);
 	const values = $derived((form?.values ?? {}) as Record<string, string>);
 </script>
 
-<svelte:head><title>Accedi — Splitto</title></svelte:head>
+<Seo
+	title="Accedi — Splitto"
+	description="Accedi a Splitto per vedere i tuoi gruppi, le spese condivise e chi deve a chi."
+/>
 
 <h1 class="mb-1 text-2xl font-bold">Bentornato!</h1>
 <p class="mb-6 text-ink-muted">Accedi per vedere i tuoi gruppi e i tuoi saldi.</p>
@@ -19,6 +24,17 @@
 		Password aggiornata. Accedi con la nuova password.
 	</p>
 {/if}
+
+{#if data.oauthError}
+	<p
+		class="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200"
+		role="alert"
+	>
+		{data.oauthError}
+	</p>
+{/if}
+
+<OAuthButtons providers={data.providers} redirectTo={data.redirectTo} />
 
 <form
 	method="POST"

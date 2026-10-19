@@ -186,19 +186,30 @@
 		use:enhance={saved('Password aggiornata')}
 		aria-labelledby="pw-title"
 	>
-		<h2 id="pw-title" class="text-lg font-bold">Cambia password</h2>
-		<div>
-			<label for="current" class="field-label">Password attuale</label>
-			<input
-				id="current"
-				name="current"
-				type="password"
-				autocomplete="current-password"
-				class="field-input"
-				aria-describedby="current-error"
-			/>
-			<FieldError id="current-error" message={err('password', 'current')} />
-		</div>
+		<h2 id="pw-title" class="text-lg font-bold">
+			{data.hasPassword ? 'Cambia password' : 'Imposta una password'}
+		</h2>
+		{#if data.hasPassword}
+			<div>
+				<label for="current" class="field-label">Password attuale</label>
+				<input
+					id="current"
+					name="current"
+					type="password"
+					autocomplete="current-password"
+					class="field-input"
+					aria-describedby="current-error"
+				/>
+				<FieldError id="current-error" message={err('password', 'current')} />
+			</div>
+		{:else}
+			<p class="text-sm text-ink-muted">
+				Accedi con Google. Se vuoi, imposta anche una password per entrare con la tua email.
+			</p>
+			{#if err('password', 'form')}<p class="text-sm text-owe" role="alert">
+					{err('password', 'form')}
+				</p>{/if}
+		{/if}
 		<div class="grid gap-4 sm:grid-cols-2">
 			<div>
 				<label for="password" class="field-label">Nuova password</label>
@@ -227,12 +238,18 @@
 			</div>
 		</div>
 		<p class="text-xs text-ink-muted">Verrai disconnesso dagli altri dispositivi.</p>
-		<button class="btn-primary">Aggiorna password</button>
+		<button class="btn-primary"
+			>{data.hasPassword ? 'Aggiorna password' : 'Imposta password'}</button
+		>
 	</form>
 
 	<form method="POST" action="/logout" onsubmit={() => clearUserCaches()}>
 		<button class="btn-secondary w-full"><Icon name="logout" size={18} /> Esci</button>
 	</form>
+
+	<p class="text-center text-sm text-ink-muted">
+		<a href="/privacy" class="underline hover:text-ink">Informativa sulla privacy</a>
+	</p>
 
 	<details class="card p-5">
 		<summary class="cursor-pointer font-semibold text-red-700 dark:text-red-400"
@@ -259,15 +276,29 @@
 				{#if err('delete', 'form')}<p class="text-sm text-owe" role="alert">
 						{err('delete', 'form')}
 					</p>{/if}
-				<label for="delete-password" class="field-label">Conferma con la password</label>
-				<input
-					id="delete-password"
-					name="password"
-					type="password"
-					autocomplete="current-password"
-					class="field-input"
-					aria-describedby="delete-error"
-				/>
+				{#if data.hasPassword}
+					<label for="delete-password" class="field-label">Conferma con la password</label>
+					<input
+						id="delete-password"
+						name="password"
+						type="password"
+						autocomplete="current-password"
+						class="field-input"
+						aria-describedby="delete-error"
+					/>
+				{:else}
+					<label for="delete-password" class="field-label"
+						>Conferma scrivendo la tua email ({data.me.email})</label
+					>
+					<input
+						id="delete-password"
+						name="email"
+						type="email"
+						autocomplete="off"
+						class="field-input"
+						aria-describedby="delete-error"
+					/>
+				{/if}
 				<FieldError id="delete-error" message={err('delete', 'deletePassword')} />
 				<button class="btn bg-red-700 text-white hover:bg-red-800">Elimina definitivamente</button>
 			</form>

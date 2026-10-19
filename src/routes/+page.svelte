@@ -5,6 +5,8 @@
 	import DemoSimulator from '$lib/components/home/DemoSimulator.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import { toasts } from '$lib/client/toast.svelte';
+	import Seo from '$lib/components/seo/Seo.svelte';
+	import { jsonLd, OG_IMAGE, SITE_NAME } from '$lib/seo';
 
 	let { data } = $props();
 
@@ -111,21 +113,66 @@
 		{
 			q: 'I miei amici devono registrarsi?',
 			a: 'No: puoi aggiungerli solo con il nome. Quando si registreranno con il tuo link di invito, ritroveranno tutte le loro spese.'
+		},
+		{
+			q: 'Come si dividono le spese tra coinquilini?',
+			a: 'Crea un gruppo “Casa”, aggiungi affitto, bollette e spesa (anche come spese ricorrenti) e scegli come dividerle: in parti uguali, per importi o per percentuali. Splitto aggiorna i saldi di tutti in tempo reale.'
+		},
+		{
+			q: 'Come funziona la semplificazione dei debiti?',
+			a: 'Splitto calcola il saldo di ogni persona e propone il numero minimo di pagamenti per mettere tutti in pari: invece di tanti piccoli rimborsi incrociati, bastano pochi bonifici.'
+		},
+		{
+			q: 'Posso usare Splitto per un viaggio di gruppo?',
+			a: 'Sì: crea un gruppo “Viaggio”, imposta un budget e aggiungi le spese man mano, anche offline. A fine viaggio Splitto ti dice chi deve dare quanto a chi.'
 		}
 	];
+
+	const origin = $derived(data.origin);
+	// Structured data for search engines: the app itself and the FAQ above.
+	const structuredData = $derived(
+		jsonLd({
+			'@context': 'https://schema.org',
+			'@graph': [
+				{
+					'@type': 'WebApplication',
+					name: SITE_NAME,
+					url: origin + '/',
+					description:
+						'App gratuita per dividere le spese tra amici, coinquilini e compagni di viaggio: chi ha pagato, chi deve a chi e come saldare con il minor numero di pagamenti.',
+					applicationCategory: 'FinanceApplication',
+					operatingSystem: 'Web, Android, iOS, Windows, macOS',
+					inLanguage: 'it',
+					image: origin + OG_IMAGE.path,
+					offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' }
+				},
+				{
+					'@type': 'WebSite',
+					name: SITE_NAME,
+					url: origin + '/',
+					inLanguage: 'it'
+				},
+				{
+					'@type': 'FAQPage',
+					mainEntity: faqs.map((f) => ({
+						'@type': 'Question',
+						name: f.q,
+						acceptedAnswer: { '@type': 'Answer', text: f.a }
+					}))
+				}
+			]
+		})
+	);
 </script>
 
+<Seo
+	title="Splitto — App gratis per dividere le spese tra amici e coinquilini"
+	ogTitle="Splitto — Dividi le spese, non le amicizie"
+	description="Splitto divide le spese tra amici, coinquilini e compagni di viaggio: chi ha pagato, chi deve a chi e come saldare con il minor numero di pagamenti. Gratis, senza pubblicità."
+/>
 <svelte:head>
-	<title>Splitto — Dividi le spese, non le amicizie</title>
-	<meta
-		name="description"
-		content="Splitto divide le spese tra amici, coinquilini e compagni di viaggio: chi ha pagato, chi deve a chi e come saldare con il minor numero di pagamenti. Gratis."
-	/>
-	<meta property="og:title" content="Splitto — Dividi le spese, non le amicizie" />
-	<meta
-		property="og:description"
-		content="Gruppi, spese, saldi e rimborsi in un attimo. Gratis e installabile."
-	/>
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -- JSON-LD built from static data, `<` escaped -->
+	{@html structuredData}
 </svelte:head>
 
 <header class="sticky top-0 z-30 border-b border-line/60 bg-surface-2/80 backdrop-blur">
@@ -167,8 +214,9 @@
 					>
 				</h1>
 				<p class="mt-5 max-w-lg text-lg text-ink-muted">
-					Splitto tiene il conto di chi ha pagato cosa con coinquilini, amici e compagni di viaggio,
-					e ti dice chi deve a chi con il minor numero di pagamenti.
+					L'app gratuita per dividere le spese: Splitto tiene il conto di chi ha pagato cosa con
+					coinquilini, amici e compagni di viaggio, e ti dice chi deve a chi con il minor numero di
+					pagamenti.
 				</p>
 				<div class="mt-8 flex flex-wrap gap-3">
 					{#if data.user}
@@ -300,6 +348,7 @@
 			<a href="/login" class="hover:text-ink">Accedi</a>
 			<a href="/register" class="hover:text-ink">Registrati</a>
 			<a href="#faq-title" class="hover:text-ink">FAQ</a>
+			<a href="/privacy" class="hover:text-ink">Privacy</a>
 		</nav>
 		<p>© {new Date().getFullYear()} Splitto</p>
 	</div>

@@ -12,7 +12,11 @@ const ASSETS_CACHE = `splitto-cache-${version}`;
 const PAGES_CACHE = `splitto-pages-${version}`;
 const OFFLINE_URL = '/offline';
 
-const ASSETS = [...build, ...files.filter((f) => !f.startsWith('/screenshots/')), ...prerendered];
+const ASSETS = [
+	...build,
+	...files.filter((f) => !f.startsWith('/screenshots/') && f !== '/og-image.png'),
+	...prerendered
+];
 const ASSET_SET = new Set(ASSETS);
 
 // Pages that may be cached for offline reading (only GET, only the current user's own views).

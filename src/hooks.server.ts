@@ -8,6 +8,7 @@ import {
 	validateSessionToken
 } from '$lib/server/auth/session';
 import { startJobs } from '$lib/server/jobs';
+import { INDEXABLE_PATHS } from '$lib/seo';
 
 export const init: ServerInit = () => {
 	if (!building) startJobs();
@@ -52,6 +53,11 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	h.set('X-Frame-Options', 'DENY');
 	h.set('Cross-Origin-Opener-Policy', 'same-origin');
 	h.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+	// Only the public pages may show up in search results (robots.txt and sitemap.xml are
+	// not HTML, so the header is harmless there too).
+	if (!(INDEXABLE_PATHS as readonly string[]).includes(event.url.pathname)) {
+		h.set('X-Robots-Tag', 'noindex');
+	}
 	// Pages under /app contain personal data: never let shared caches store them.
 	if (event.url.pathname.startsWith('/app') && !h.has('Cache-Control')) {
 		h.set('Cache-Control', 'private, no-store');

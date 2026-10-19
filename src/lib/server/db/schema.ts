@@ -37,6 +37,7 @@ export const users = sqliteTable('users', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
 	email: text('email').notNull().unique(),
+	// Empty string for accounts created with Google that never set a password.
 	passwordHash: text('password_hash').notNull(),
 	avatarPath: text('avatar_path'),
 	avatarColor: text('avatar_color').notNull(),
@@ -62,6 +63,26 @@ export const sessions = sqliteTable(
 		createdAt: createdAt()
 	},
 	(t) => [index('sessions_user_idx').on(t.userId)]
+);
+
+export const OAUTH_PROVIDERS = ['google'] as const;
+export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
+
+/** External identities (Google "sub") linked to a user. */
+export const oauthAccounts = sqliteTable(
+	'oauth_accounts',
+	{
+		provider: text('provider', { enum: OAUTH_PROVIDERS }).notNull(),
+		providerUserId: text('provider_user_id').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		createdAt: createdAt()
+	},
+	(t) => [
+		primaryKey({ columns: [t.provider, t.providerUserId] }),
+		index('oauth_accounts_user_idx').on(t.userId)
+	]
 );
 
 export const passwordResetTokens = sqliteTable('password_reset_tokens', {

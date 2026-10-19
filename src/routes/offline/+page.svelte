@@ -1,4 +1,8 @@
-<svelte:head><title>Sei offline — Splitto</title></svelte:head>
+<svelte:head>
+	<title>Sei offline — Splitto</title>
+	<!-- Prerendered: served as a static file, without the X-Robots-Tag set in hooks. -->
+	<meta name="robots" content="noindex" />
+</svelte:head>
 
 <main id="main" class="flex min-h-dvh items-center justify-center px-4">
 	<div class="max-w-md card p-8 text-center">

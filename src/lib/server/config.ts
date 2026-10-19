@@ -32,6 +32,12 @@ export const config = {
 			subject: env.VAPID_SUBJECT || 'mailto:admin@example.com'
 		};
 	},
+	get google() {
+		return {
+			clientId: env.GOOGLE_CLIENT_ID || '',
+			clientSecret: env.GOOGLE_CLIENT_SECRET || ''
+		};
+	},
 	get jobsEnabled() {
 		return env.JOBS_ENABLED !== 'false';
 	}

@@ -9,6 +9,11 @@ import { createSession, setSessionCookie } from '$lib/server/auth/session';
 import { limiters, retryMessage } from '$lib/server/auth/rate-limit';
 import { invalid, parseForm, zEmail } from '$lib/server/forms';
 import { safeRedirect } from '$lib/server/redirect';
+import {
+	enabledProviders,
+	OAUTH_ERROR_MESSAGES,
+	type OAuthErrorCode
+} from '$lib/server/auth/oauth';
 
 const schema = z.object({
 	email: zEmail,
@@ -19,10 +24,18 @@ const schema = z.object({
 // Verifying against a dummy hash for unknown emails keeps response times uniform.
 let dummyHash: Promise<string> | undefined;
 
-export const load: PageServerLoad = ({ url }) => ({
-	redirectTo: url.searchParams.get('redirectTo') ?? '',
-	reset: url.searchParams.has('reset')
-});
+export const load: PageServerLoad = ({ url }) => {
+	const oauthError = url.searchParams.get('oauthError');
+	return {
+		redirectTo: url.searchParams.get('redirectTo') ?? '',
+		reset: url.searchParams.has('reset'),
+		providers: enabledProviders(),
+		oauthError:
+			oauthError && oauthError in OAUTH_ERROR_MESSAGES
+				? OAUTH_ERROR_MESSAGES[oauthError as OAuthErrorCode]
+				: null
+	};
+};
 
 export const actions: Actions = {
 	default: async ({ request, cookies, getClientAddress }) => {

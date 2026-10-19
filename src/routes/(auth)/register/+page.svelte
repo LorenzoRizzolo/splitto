@@ -1,16 +1,23 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import FieldError from '$lib/components/ui/FieldError.svelte';
+	import OAuthButtons from '$lib/components/auth/OAuthButtons.svelte';
+	import Seo from '$lib/components/seo/Seo.svelte';
 
 	let { data, form } = $props();
 	let submitting = $state(false);
 	const values = $derived((form?.values ?? {}) as Record<string, string>);
 </script>
 
-<svelte:head><title>Registrati — Splitto</title></svelte:head>
+<Seo
+	title="Registrati gratis — Splitto"
+	description="Crea gratis il tuo account Splitto e inizia a dividere le spese con amici, coinquilini e compagni di viaggio."
+/>
 
 <h1 class="mb-1 text-2xl font-bold">Crea il tuo account</h1>
 <p class="mb-6 text-ink-muted">È gratis e ci vuole meno di un minuto.</p>
+
+<OAuthButtons providers={data.providers} redirectTo={data.redirectTo} />
 
 <form
 	method="POST"
@@ -83,6 +90,13 @@
 		{submitting ? 'Creazione account…' : 'Crea account'}
 	</button>
 </form>
+
+<p class="mt-4 text-center text-xs text-ink-muted">
+	Creando un account dichiari di aver letto l'<a
+		class="font-medium text-brand-700 underline dark:text-brand-300"
+		href="/privacy">informativa sulla privacy</a
+	>.
+</p>
 
 <p class="mt-6 text-center text-sm text-ink-muted">
 	Hai già un account?

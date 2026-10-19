@@ -11,6 +11,7 @@ import { limiters, retryMessage } from '$lib/server/auth/rate-limit';
 import { invalid, parseForm, zEmail, zName, zPassword } from '$lib/server/forms';
 import { safeRedirect } from '$lib/server/redirect';
 import { pickAvatarColor } from '$lib/domain/avatar';
+import { enabledProviders } from '$lib/server/auth/oauth';
 
 const schema = z.object({
 	name: zName,
@@ -20,7 +21,8 @@ const schema = z.object({
 });
 
 export const load: PageServerLoad = ({ url }) => ({
-	redirectTo: url.searchParams.get('redirectTo') ?? ''
+	redirectTo: url.searchParams.get('redirectTo') ?? '',
+	providers: enabledProviders()
 });
 
 export const actions: Actions = {

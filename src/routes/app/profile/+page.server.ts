@@ -18,9 +18,16 @@ import { deleteUpload, fileField, saveUpload, UploadError } from '$lib/server/up
 import { invalid, parseForm, zName, zPassword } from '$lib/server/forms';
 import { config } from '$lib/server/config';
 
+/** Accounts created with Google have no password until they set one. */
+function passwordHashOf(userId: string): string | undefined {
+	return db.select({ hash: users.passwordHash }).from(users).where(eq(users.id, userId)).get()
+		?.hash;
+}
+
 export const load: PageServerLoad = ({ locals }) => {
 	const user = locals.user!;
 	return {
+		hasPassword: !!passwordHashOf(user.id),
 		prefs: Object.fromEntries(
 			NOTIFICATION_EVENTS.map((e) => [e, user.notifyPrefs[e] !== false])
 		) as NotifyPrefs,
@@ -73,7 +80,7 @@ export const actions: Actions = {
 		const form = parseForm(
 			z
 				.object({
-					current: z.string().min(1, 'Inserisci la password attuale'),
+					current: z.string(),
 					password: zPassword,
 					confirm: z.string()
 				})
@@ -84,13 +91,15 @@ export const actions: Actions = {
 			await request.formData()
 		);
 		if (!form.ok) return invalid(form.errors, {}, 'password');
-		const row = db
-			.select({ hash: users.passwordHash })
-			.from(users)
-			.where(eq(users.id, locals.user!.id))
-			.get();
-		if (!row || !(await verifyPassword(row.hash, form.data.current))) {
-			return invalid({ current: 'Password attuale non corretta' }, {}, 'password');
+		const hash = passwordHashOf(locals.user!.id);
+		if (hash === undefined) return invalid({ form: 'Account non trovato' }, {}, 'password');
+		if (hash) {
+			if (!form.data.current) {
+				return invalid({ current: 'Inserisci la password attuale' }, {}, 'password');
+			}
+			if (!(await verifyPassword(hash, form.data.current))) {
+				return invalid({ current: 'Password attuale non corretta' }, {}, 'password');
+			}
 		}
 		db.update(users)
 			.set({ passwordHash: await hashPassword(form.data.password) })
@@ -103,13 +112,18 @@ export const actions: Actions = {
 	delete: async ({ locals, request, cookies }) => {
 		const user = locals.user!;
 		const data = await request.formData();
-		const row = db
-			.select({ hash: users.passwordHash })
-			.from(users)
-			.where(eq(users.id, user.id))
-			.get();
-		if (!row || !(await verifyPassword(row.hash, String(data.get('password') ?? '')))) {
-			return invalid({ deletePassword: 'Password non corretta' }, {}, 'delete');
+		const hash = passwordHashOf(user.id);
+		if (hash) {
+			if (!(await verifyPassword(hash, String(data.get('password') ?? '')))) {
+				return invalid({ deletePassword: 'Password non corretta' }, {}, 'delete');
+			}
+		} else if (
+			hash === undefined ||
+			String(data.get('email') ?? '')
+				.trim()
+				.toLowerCase() !== user.email
+		) {
+			return invalid({ deletePassword: 'L’email non corrisponde' }, {}, 'delete');
 		}
 		if (!userIsSettled(user.id)) {
 			return fail(400, {

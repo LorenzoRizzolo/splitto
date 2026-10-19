@@ -6,6 +6,7 @@
 	import Avatar from '$lib/components/ui/Avatar.svelte';
 	import Money from '$lib/components/ui/Money.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
+	import PushBanner from '$lib/components/pwa/PushBanner.svelte';
 
 	let { data } = $props();
 	const firstName = $derived(data.me.name.split(' ')[0]);
@@ -14,6 +15,8 @@
 <svelte:head><title>Dashboard — Splitto</title></svelte:head>
 
 <h1 class="mb-4 text-2xl font-extrabold tracking-tight sm:text-3xl">Ciao {firstName} 👋</h1>
+
+<PushBanner vapidPublicKey={data.vapidPublicKey} />
 
 <BalanceHero owe={data.owe} owed={data.owed} />
 

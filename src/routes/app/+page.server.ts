@@ -3,6 +3,7 @@ import type { PageServerLoad } from './$types';
 import { friendBalances, userGroupSummaries } from '$lib/server/services/balances';
 import { listMembers } from '$lib/server/services/groups';
 import { listActivity } from '$lib/server/services/activity';
+import { config } from '$lib/server/config';
 
 export const load: PageServerLoad = ({ locals }) => {
 	const user = locals.user!;
@@ -39,6 +40,7 @@ export const load: PageServerLoad = ({ locals }) => {
 			directGroupId: f.directGroupId,
 			isGuest: !f.userId
 		})),
-		activity: listActivity(user.id, { limit: 6 })
+		activity: listActivity(user.id, { limit: 6 }),
+		vapidPublicKey: config.vapid.publicKey
 	};
 };

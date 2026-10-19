@@ -31,7 +31,9 @@
 
 	async function copyOrShare(url: string) {
 		const r = await shareText(
-			`Unisciti a “${data.group.title}” su Splitto per dividere le spese: ${url}`,
+			isDirect
+				? `${data.me.name} ti invita su Splitto per dividere le spese: ${url}`
+				: `${data.me.name} ti invita a unirti a “${data.group.name}” su Splitto per dividere le spese: ${url}`,
 			'Invito Splitto'
 		);
 		if (r === 'copied') toasts.success('Link copiato');
@@ -203,35 +205,38 @@
 			{#if data.invites.length > 0}
 				<ul class="space-y-2">
 					{#each data.invites as inv (inv.id)}
-						<li class="flex flex-wrap items-center gap-2 rounded-xl border border-line p-3">
-							<span class="min-w-0 flex-1">
+						<li class="rounded-xl border border-line p-3">
+							<div class="min-w-0">
 								<span class="block truncate font-mono text-xs">{inv.url}</span>
 								<span class="text-xs text-ink-muted">
 									{inv.guestMemberId ? `Per ${guestName(inv.guestMemberId)} · ` : ''}scade {formatRelative(
 										new Date(inv.expiresAt)
 									)}
 								</span>
-							</span>
-							<button
-								type="button"
-								class="btn-secondary min-h-11 px-3 text-sm"
-								onclick={() => copyOrShare(inv.url)}
-								><Icon name="copy" size={16} /> Condividi</button
-							>
-							<button
-								type="button"
-								class="btn-secondary min-h-11 px-3 text-sm"
-								onclick={() => {
-									qrOpen = inv.id;
-									qrModal = true;
-								}}><Icon name="qr" size={16} /> QR</button
-							>
-							<form method="POST" action="?/revokeInvite" use:enhance={toast('Invito revocato')}>
-								<input type="hidden" name="id" value={inv.id} />
-								<button class="btn-ghost min-h-11 px-3 text-sm text-red-700 dark:text-red-400"
-									>Revoca</button
+							</div>
+							<div class="mt-3 grid grid-cols-3 gap-2">
+								<button
+									type="button"
+									class="btn-secondary min-h-11 w-full px-2 text-sm"
+									onclick={() => copyOrShare(inv.url)}
+									><Icon name="copy" size={16} /> Condividi</button
 								>
-							</form>
+								<button
+									type="button"
+									class="btn-secondary min-h-11 w-full px-2 text-sm"
+									onclick={() => {
+										qrOpen = inv.id;
+										qrModal = true;
+									}}><Icon name="qr" size={16} /> QR</button
+								>
+								<form method="POST" action="?/revokeInvite" use:enhance={toast('Invito revocato')}>
+									<input type="hidden" name="id" value={inv.id} />
+									<button
+										class="btn-ghost min-h-11 w-full border border-line px-2 text-sm text-red-700 dark:text-red-400"
+										>Revoca</button
+									>
+								</form>
+							</div>
 							<noscript>
 								<details class="w-full">
 									<summary>Mostra QR</summary>

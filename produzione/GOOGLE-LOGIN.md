@@ -3,7 +3,7 @@
 Cosa fare sul server (e nella console di Google) dopo l'aggiornamento che aggiunge l'accesso con
 Google. Per l'installazione completa vedi [GUIDA.md](GUIDA.md).
 
-Nei comandi sostituisci `splitto.example.com` con il tuo dominio.
+Il sito è `https://splitto.rizzolo.cloud`.
 
 **In breve:**
 
@@ -44,7 +44,7 @@ Poi, nella sezione **Branding**:
 
 - **Home page dell'applicazione**: `https://splitto.rizzolo.cloud`
 - **Link alle norme sulla privacy**: `https://splitto.rizzolo.cloud/privacy` (vedi la nota sotto)
-- **Domini autorizzati**: `splitto.example.com` (solo il dominio, senza `https://`)
+- **Domini autorizzati**: `splitto.rizzolo.cloud` (solo il dominio, senza `https://`)
 - **Logo**: meglio **non caricarlo** per ora: con il logo Google chiede la verifica del brand, che
   richiede giorni. Senza logo il login funziona lo stesso.
 
@@ -75,8 +75,7 @@ Sezione **Client** (o **Credenziali → Crea credenziali → ID client OAuth**):
 | URI di reindirizzamento autorizzati | `https://splitto.rizzolo.cloud/login/google/callback` |
 
 L'URI deve coincidere **carattere per carattere** (https, niente `www` se non lo usi, niente `/`
-finale). Se usi anche `www.splitto.example.com`, il sito deve comunque rispondere su un solo
-dominio, quello di `ORIGIN`.
+finale). Il sito deve rispondere su un solo dominio, quello di `ORIGIN`.
 
 Premi **Crea** e copia **ID client** e **Client secret**. Il secret si vede per intero solo ora:
 salvalo in un password manager.
@@ -119,7 +118,7 @@ All'avvio viene applicata la migrazione `0002_oauth_accounts`: **aggiunge solo**
 ```bash
 curl -sI https://splitto.rizzolo.cloud/login/google | grep -i location
 # deve puntare a https://accounts.google.com/... con
-# redirect_uri=https%3A%2F%2Fsplitto.example.com%2Flogin%2Fgoogle%2Fcallback
+# redirect_uri=https%3A%2F%2Fsplitto.rizzolo.cloud%2Flogin%2Fgoogle%2Fcallback
 ```
 
 Dal browser (meglio in una finestra anonima):

@@ -3,13 +3,13 @@
 Questa guida porta Splitto da zero a online su un server Linux con **Node.js + PM2 + nginx (solo HTTP)**, con **Cloudflare** davanti che fornisce l'HTTPS.
 È scritta per **Ubuntu 24.04 / Debian 12**, ma va bene per qualsiasi distribuzione simile.
 
+Il sito è pubblicato su **`splitto.rizzolo.cloud`** (già scritto in comandi e configurazioni).
 Nei comandi sostituisci sempre:
 
-| Segnaposto            | Esempio                                               |
-| --------------------- | ----------------------------------------------------- |
-| `splitto.example.com` | il tuo dominio                                        |
-| `TUO_IP`              | l'IP pubblico del server                              |
-| `/opt/splitto`        | la cartella dove installi l'app (puoi lasciarla così) |
+| Segnaposto     | Esempio                                               |
+| -------------- | ----------------------------------------------------- |
+| `TUO_IP`       | l'IP pubblico del server                              |
+| `/opt/splitto` | la cartella dove installi l'app (puoi lasciarla così) |
 
 File in questa cartella:
 
@@ -105,7 +105,7 @@ nano .env
 Valori da impostare in produzione (gli altri vanno bene così):
 
 ```dotenv
-ORIGIN=https://splitto.example.com
+ORIGIN=https://splitto.rizzolo.cloud
 PORT=3000
 ADDRESS_HEADER=X-Real-IP
 
@@ -192,18 +192,17 @@ Lo script rimette i file precedenti se nginx rifiuta quelli nuovi, così non res
 
 ```bash
 sudo cp /opt/splitto/produzione/nginx/splitto.conf /etc/nginx/sites-available/splitto
-sudo sed -i 's/splitto.example.com/IL-TUO-DOMINIO/g' /etc/nginx/sites-available/splitto
 sudo ln -sf /etc/nginx/sites-available/splitto /etc/nginx/sites-enabled/splitto
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
-curl -I -H "Host: IL-TUO-DOMINIO" http://127.0.0.1/    # dal server stesso: HTTP/1.1 200
+curl -I -H "Host: splitto.rizzolo.cloud" http://127.0.0.1/    # dal server stesso: HTTP/1.1 200
 ```
 
 ## 8. Cloudflare
 
-Nel pannello di Cloudflare, per il tuo dominio:
+Nel pannello di Cloudflare, per il dominio `rizzolo.cloud`:
 
-1. **DNS** → aggiungi un record **A** con nome `@` (o un sottodominio, es. `splitto`) e valore `TUO_IP`, con la **nuvola arancione attiva** ("Proxied").
+1. **DNS** → aggiungi un record **A** con nome `splitto` e valore `TUO_IP`, con la **nuvola arancione attiva** ("Proxied").
    Se il server ha IPv6 aggiungi anche un record **AAAA**.
 2. **SSL/TLS → Overview** → modalità **Flexible** (Cloudflare ↔ visitatore in HTTPS, Cloudflare ↔ server in HTTP).
 3. **SSL/TLS → Edge Certificates** → attiva **Always Use HTTPS**.
@@ -221,16 +220,16 @@ Nel pannello di Cloudflare, per il tuo dominio:
 ## Verifiche finali
 
 ```bash
-curl -I http://IL-TUO-DOMINIO/                    # 301 verso https (redirect fatto da Cloudflare)
-curl -I https://IL-TUO-DOMINIO/                   # 200, con content-security-policy e "server: cloudflare"
-curl -I https://IL-TUO-DOMINIO/service-worker.js  # cache-control: no-cache, no-store, must-revalidate
-curl -I https://IL-TUO-DOMINIO/manifest.webmanifest
-curl -m 5 -I -H "Host: IL-TUO-DOMINIO" http://TUO_IP/   # da fuori, senza Cloudflare: nessuna risposta
+curl -I http://splitto.rizzolo.cloud/                    # 301 verso https (redirect fatto da Cloudflare)
+curl -I https://splitto.rizzolo.cloud/                   # 200, con content-security-policy e "server: cloudflare"
+curl -I https://splitto.rizzolo.cloud/service-worker.js  # cache-control: no-cache, no-store, must-revalidate
+curl -I https://splitto.rizzolo.cloud/manifest.webmanifest
+curl -m 5 -I -H "Host: splitto.rizzolo.cloud" http://TUO_IP/   # da fuori, senza Cloudflare: nessuna risposta
 ```
 
 Dal browser:
 
-1. apri `https://IL-TUO-DOMINIO`, registrati e crea un gruppo;
+1. apri `https://splitto.rizzolo.cloud`, registrati e crea un gruppo;
 2. carica la foto di uno scontrino (verifica che i limiti di upload siano a posto);
 3. nel profilo attiva le notifiche: arriva subito “🔔 Notifiche attive”;
 4. su Chrome o Android compare “Installa”; su iPhone le istruzioni “Condividi → Aggiungi alla schermata Home”;
